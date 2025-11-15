@@ -1,3 +1,6 @@
+// its(useState) gives us to change and store the data instide the component 
+// So useState is React’s way of saying:
+// “Keep this value safe. If it changes, update the screen.
 import { useState } from "react";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
@@ -8,6 +11,9 @@ import MonthlySummary from "./components/MonthlySummary";
 
 function App() {
   const [page, setPage] = useState("home");
+  //page = store the current page 
+  //setPage = function usedtochange the page
+  //if page home the show home page
 
   return (
     <div>
@@ -23,5 +29,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
