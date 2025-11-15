@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 📘 Expense Splitter & Expense Tracker (Beginner React Version)
 
 A simple, beginner-friendly React Single Page Application (SPA) for tracking expenses and splitting costs among people.
@@ -191,7 +190,6 @@ total expense
 category breakdown
 
 who owes who (for group expenses)
-=======
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
