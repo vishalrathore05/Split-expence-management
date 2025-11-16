@@ -1,19 +1,61 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function AddExpense() {
+    //store each data in this fields
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [category, setCategory] = useState("");
   const [group, setGroup] = useState("");
-  const [categories, setCategories] = useState(["Food", "Travel", "Shopping"]);
-  const [groups] = useState(["Friends", "Office", "Family"]);
 
+  //here using the array to display the data on the dropdown 
+  const [categories, setCategories] = useState([]);
+  const [groups, setGroups] = useState([]);
+
+  // Load categories and groups on first load
+  useEffect(() => {
+    const savedCategories = JSON.parse(localStorage.getItem("categories"));
+    const savedGroups = JSON.parse(localStorage.getItem("groups")) || [];
+
+    // If categories DON'T exist, create default ones
+    if (!savedCategories) {
+      const defaultCategories = ["Food", "Travel", "Shopping"];
+      localStorage.setItem("categories", JSON.stringify(defaultCategories));
+      setCategories(defaultCategories);
+    } else {
+      setCategories(savedCategories);
+    }
+
+    setGroups(savedGroups);
+  }, []);
+
+  // Save expense to localStorage
   const addExpense = () => {
-    if (!amount || !category) return;
-    alert("Expense added (dummy only for now)");
+    if (!amount || !category) {
+      alert("Amount + Category required");
+      return;
+    }
+    //packing all the values the user entered into one object.
+    const newExpense = {
+      amount, note, category, group, date: new Date().toISOString(),
+    };
+
+    //here are are going to find old expence 
+    //and then push new expence into this 
+    // so the expense list will look like this 
+    // ...old exp 1
+    // ...old exp 2
+    // new exp
+    const oldExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    oldExpenses.push(newExpense);
+
+    localStorage.setItem("expenses", JSON.stringify(oldExpenses));
+
+    alert("Expense saved!");
+    //reset input fields
     setAmount("");
     setNote("");
     setCategory("");
+    setGroup("");
   };
 
   return (
