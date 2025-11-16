@@ -26,3 +26,7 @@ function Navbar() {
 }
 
 export default Navbar;
+
+
+//in this above you can see we have use <link> instead of <a> becau se<Link> is React Router’s version of <a>. But <a> reloads the whole page.
+//we use className because class is js keyword

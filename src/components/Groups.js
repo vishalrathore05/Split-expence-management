@@ -5,6 +5,7 @@ function Groups() {
   const [groupName, setGroupName] = useState("");
 
   // Load groups from localStorage when page first opens
+  //also change into the string '["friends", "family"]'
   useEffect(() => {
     const savedGroups = localStorage.getItem("groups");
     if (savedGroups) {
@@ -16,7 +17,7 @@ function Groups() {
   useEffect(() => {
     localStorage.setItem("groups", JSON.stringify(groups));
   }, [groups]);
-
+  //saves the updated list automatically.
   const addGroup = () => {
     if (!groupName.trim()) return;
 
