@@ -111,10 +111,10 @@
 
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // <-- import useNavigate
+import { useNavigate } from "react-router-dom";
 
 function AddExpense() {
-  const navigate = useNavigate(); // <-- initialize navigate
+  const navigate = useNavigate();
 
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
@@ -125,58 +125,71 @@ function AddExpense() {
   const [groups, setGroups] = useState([]);
 
   useEffect(() => {
-    const savedCategories = JSON.parse(localStorage.getItem("categories"));
+    const savedCategories = JSON.parse(localStorage.getItem("categories")) || ["Food", "Travel", "Shopping"];
+    setCategories(savedCategories);
+
     const savedGroups = JSON.parse(localStorage.getItem("groups")) || [];
-
-    if (!savedCategories) {
-      const defaultCategories = ["Food", "Travel", "Shopping"];
-      localStorage.setItem("categories", JSON.stringify(defaultCategories));
-      setCategories(defaultCategories);
-    } else setCategories(savedCategories);
-
     setGroups(savedGroups);
   }, []);
 
   const addExpense = () => {
-    if (!amount || !category) {
-      alert("Amount + Category required");
-      return;
+    if (!amount || !category) return alert("Amount + Category required");
+
+    let split = {};
+    if (group) {
+      const selectedGroup = groups.find((g) => g.name === group);
+      if (selectedGroup) {
+        const totalMembers = selectedGroup.members.length + 1; // including self
+        const share = (parseFloat(amount) / totalMembers).toFixed(2);
+
+        // Add self as "You"
+        split["You"] = parseFloat(share);
+        selectedGroup.members.forEach((m) => {
+          split[m] = parseFloat(share);
+        });
+      }
+    } else {
+      split["You"] = parseFloat(amount); // personal expense
     }
 
-    const newExpense = { amount, note, category, group, date: new Date().toISOString() };
+    const newExpense = {
+      amount,
+      note,
+      category,
+      group,
+      split,
+      date: new Date().toISOString(),
+    };
+
     const oldExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
     oldExpenses.push(newExpense);
     localStorage.setItem("expenses", JSON.stringify(oldExpenses));
 
     alert("Expense saved!");
-
-    // Reset fields
     setAmount(""); setNote(""); setCategory(""); setGroup("");
-
-    // Redirect to Expense List
-    navigate("/expense-list"); // <-- this redirects the user
+    navigate("/expense-list");
   };
 
   return (
-    <div className="card-section">
-      <h3 className="mb-3 text-center">Add Expense</h3>
+    <div>
+      <h3>Add Expense</h3>
 
       <label>Amount</label>
-      <input className="form-control mb-3" value={amount} onChange={(e)=>setAmount(e.target.value)} />
+      <input className="form-control mb-2" value={amount} onChange={(e) => setAmount(e.target.value)} />
 
       <label>Note</label>
-      <input className="form-control mb-3" value={note} onChange={(e)=>setNote(e.target.value)} />
+      <input className="form-control mb-2" value={note} onChange={(e) => setNote(e.target.value)} />
 
       <label>Category</label>
-      <select className="form-control mb-3" value={category} onChange={(e)=>setCategory(e.target.value)}>
+      <select className="form-control mb-2" value={category} onChange={(e) => setCategory(e.target.value)}>
         <option value="">Select Category</option>
-        {categories.map((c,i)=><option key={i}>{c}</option>)}
+        {categories.map((c, i) => <option key={i}>{c}</option>)}
       </select>
 
       <label>Group</label>
-      <select className="form-control mb-4" value={group} onChange={(e)=>setGroup(e.target.value)}>
+      <select className="form-control mb-3" value={group} onChange={(e) => setGroup(e.target.value)}>
         <option value="">Select Group</option>
-        {groups.map((g,i)=><option key={i}>{g}</option>)}
+        {groups.map((g, i) => <option key={i}>{g.name}</option>)}
       </select>
 
       <button className="btn btn-success" onClick={addExpense}>💾 Save Expense</button>
@@ -185,4 +198,3 @@ function AddExpense() {
 }
 
 export default AddExpense;
-

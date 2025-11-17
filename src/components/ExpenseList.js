@@ -4,39 +4,33 @@ function ExpenseList() {
   const [expenses, setExpenses] = useState([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("expenses");
-    if (saved) setExpenses(JSON.parse(saved));
+    const saved = JSON.parse(localStorage.getItem("expenses")) || [];
+    setExpenses(saved);
   }, []);
 
   return (
-    <div className="card-section">
-      <h3 className="text-center mb-3">Expense List</h3>
-      {expenses.length === 0 ? (
-        <p className="text-center">No expenses added yet.</p>
-      ) : (
-        <table className="table table-striped table-hover">
-          <thead className="table-dark">
-            <tr>
-              <th>Note</th>
-              <th>Amount</th>
-              <th>Category</th>
-              <th>Group</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenses.map((e,i)=>(
-              <tr key={i}>
-                <td>{e.note || "No note"}</td>
-                <td>₹{e.amount}</td>
-                <td>{e.category}</td>
-                <td>{e.group || "None"}</td>
-                <td>{new Date(e.date).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+    <div>
+      <h3>Expense List</h3>
+
+      {expenses.length === 0 && <p>No expenses added yet.</p>}
+
+      <ul className="list-group">
+        {expenses.map((e, i) => (
+          <li key={i} className="list-group-item">
+            <strong>Note:</strong> {e.note || "No note"}<br />
+            <strong>Amount:</strong> ₹{e.amount}<br />
+            <strong>Category:</strong> {e.category}<br />
+            <strong>Group:</strong> {e.group || "Personal"}<br />
+            <strong>Split:</strong>
+            <ul>
+              {e.split && Object.entries(e.split).map(([user, amt]) => (
+                <li key={user}>{user} → ₹{amt}</li>
+              ))}
+            </ul>
+            <strong>Date:</strong> {new Date(e.date).toLocaleString()}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
