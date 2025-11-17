@@ -1,4 +1,32 @@
+/* style.css */
+
+/* General body styling */
 body {
-    background: #f4f4f4;
-  }
-  
+  background-color: #f5f5f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Card style for sections */
+.card-section {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+/* Expense list table hover effect */
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Button styling */
+.btn-success, .btn-primary {
+  width: 100%;
+}
+
+/* Navbar brand bold */
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
