@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/Split-expence-management/static/css/main.ae34343b.css",
-    "main.js": "/Split-expence-management/static/js/main.a065acbf.js",
+    "main.js": "/Split-expence-management/static/js/main.8c65c368.js",
     "index.html": "/Split-expence-management/index.html",
     "main.ae34343b.css.map": "/Split-expence-management/static/css/main.ae34343b.css.map",
-    "main.a065acbf.js.map": "/Split-expence-management/static/js/main.a065acbf.js.map"
+    "main.8c65c368.js.map": "/Split-expence-management/static/js/main.8c65c368.js.map"
   },
   "entrypoints": [
     "static/css/main.ae34343b.css",
-    "static/js/main.a065acbf.js"
+    "static/js/main.8c65c368.js"
   ]
 }
