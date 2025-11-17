@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/Split-expence-management-new/static/css/main.ae34343b.css",
-    "main.js": "/Split-expence-management-new/static/js/main.974b4919.js",
-    "index.html": "/Split-expence-management-new/index.html",
-    "main.ae34343b.css.map": "/Split-expence-management-new/static/css/main.ae34343b.css.map",
-    "main.974b4919.js.map": "/Split-expence-management-new/static/js/main.974b4919.js.map"
+    "main.css": "/Split-expence-management/static/css/main.ae34343b.css",
+    "main.js": "/Split-expence-management/static/js/main.974b4919.js",
+    "index.html": "/Split-expence-management/index.html",
+    "main.ae34343b.css.map": "/Split-expence-management/static/css/main.ae34343b.css.map",
+    "main.974b4919.js.map": "/Split-expence-management/static/js/main.974b4919.js.map"
   },
   "entrypoints": [
     "static/css/main.ae34343b.css",
