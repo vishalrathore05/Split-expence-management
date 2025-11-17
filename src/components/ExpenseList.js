@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 function ExpenseList() {
   const [expenses, setExpenses] = useState([]);
+  const selfId = "self"; // replace with your own user ID
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("expenses")) || [];
@@ -10,27 +11,40 @@ function ExpenseList() {
 
   return (
     <div>
-      <h3>Expense List</h3>
+      <h3 className="mb-4 text-center">Expense List</h3>
 
-      {expenses.length === 0 && <p>No expenses added yet.</p>}
+      {expenses.length === 0 && <p className="text-center">No expenses added yet.</p>}
 
-      <ul className="list-group">
+      <div className="row">
         {expenses.map((e, i) => (
-          <li key={i} className="list-group-item">
-            <strong>Note:</strong> {e.note || "No note"}<br />
-            <strong>Amount:</strong> ₹{e.amount}<br />
-            <strong>Category:</strong> {e.category}<br />
-            <strong>Group:</strong> {e.group || "Personal"}<br />
-            <strong>Split:</strong>
-            <ul>
-              {e.split && Object.entries(e.split).map(([user, amt]) => (
-                <li key={user}>{user} → ₹{amt}</li>
-              ))}
-            </ul>
-            <strong>Date:</strong> {new Date(e.date).toLocaleString()}
-          </li>
+          <div key={i} className="col-md-6 mb-4">
+            <div className="card shadow-sm">
+              <div className="card-body">
+                <h5 className="card-title">{e.note || "No note"}</h5>
+                <p className="mb-1"><strong>Category:</strong> {e.category}</p>
+                <p className="mb-1"><strong>Group:</strong> {e.group || "Personal"}</p>
+
+                {e.split && (
+                  <div className="mb-2">
+                    <strong>Split:</strong>
+                    <div className="d-flex flex-wrap">
+                      {Object.entries(e.split)
+                        .filter(([user]) => user !== selfId) // remove yourself
+                        .map(([user, amt]) => (
+                          <div key={user} className="me-3 mb-1 p-2 border rounded bg-light">
+                            {user}: ₹{amt}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-muted"><small>{new Date(e.date).toLocaleString()}</small></p>
+              </div>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
