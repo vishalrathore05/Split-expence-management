@@ -5,10 +5,10 @@ function ExpenseList() {
   const selfId = "You"; // Represents yourself in the split
 
   useEffect(() => {
-    // Get saved expenses from localStorage
+    // Load saved expenses from localStorage
     const saved = JSON.parse(localStorage.getItem("expenses")) || [];
 
-    // If no expenses exist (like on GitHub Pages first load), add demo data
+    // If no expenses exist (like on first GitHub Pages load), add demo data
     if (saved.length === 0) {
       const demoExpenses = [
         {
@@ -42,33 +42,37 @@ function ExpenseList() {
       {expenses.length === 0 && <p>No expenses added yet.</p>}
 
       <ul className="list-group">
-        {expenses.map((e, i) => (
-          <li key={i} className="list-group-item">
-            <strong>Note:</strong> {e.note || "No note"} <br />
-            <strong>Category:</strong> {e.category} <br />
-            <strong>Group:</strong> {e.group || "Personal"} <br />
+        {expenses.map((e, i) => {
+          // Make sure self is first in the split
+          const orderedSplit = { [selfId]: e.split[selfId], ...Object.fromEntries(
+            Object.entries(e.split).filter(([user]) => user !== selfId)
+          )};
 
-            {e.split && (
-              <div className="mb-2">
-                <strong>Split:</strong>
-                <div className="d-flex flex-wrap mt-1">
-                  {Object.entries(e.split)
-                    .filter(([user]) => user !== selfId) // remove yourself
-                    .map(([user, amt]) => (
-                      <div
-                        key={user}
-                        className="me-3 mb-1 p-2 border rounded bg-light"
-                      >
-                        {user}: ₹{amt}
-                      </div>
-                    ))}
-                </div>
+          return (
+            <li key={i} className="list-group-item mb-3">
+              <strong>Note:</strong> {e.note || "No note"} <br />
+              <strong>Category:</strong> {e.category} <br />
+              <strong>Group:</strong> {e.group || "Personal"} <br />
+
+              <strong>Split:</strong>
+              <div className="d-flex flex-wrap mt-1">
+                {Object.entries(orderedSplit).map(([user, amt]) => (
+                  <div
+                    key={user}
+                    className={`me-2 mb-2 p-2 border rounded ${
+                      user === selfId ? "border-success bg-light" : "border-secondary bg-light"
+                    }`}
+                    style={{ minWidth: "80px", textAlign: "center" }}
+                  >
+                    {user}: ₹{amt.toFixed(2)}
+                  </div>
+                ))}
               </div>
-            )}
 
-            <strong>Date:</strong> {new Date(e.date).toLocaleString()}
-          </li>
-        ))}
+              <strong>Date:</strong> {new Date(e.date).toLocaleString()}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

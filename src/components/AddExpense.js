@@ -132,43 +132,43 @@ function AddExpense() {
     setGroups(savedGroups);
   }, []);
 
-    // inside addExpense function in AddExpense.js
-    const addExpense = () => {
-      if (!amount || !category) {
-        alert("Amount + Category required");
-        return;
+  const addExpense = () => {
+    if (!amount || !category) return alert("Amount + Category required");
+
+    let split = {};
+    if (group) {
+      const selectedGroup = groups.find((g) => g.name === group);
+      if (selectedGroup) {
+        const totalMembers = selectedGroup.members.length + 1; // including self
+        const share = (parseFloat(amount) / totalMembers).toFixed(2);
+
+        // Add self as "You"
+        split["You"] = parseFloat(share);
+        selectedGroup.members.forEach((m) => {
+          split[m] = parseFloat(share);
+        });
       }
+    } else {
+      split["You"] = parseFloat(amount); // personal expense
+    }
 
-      // Determine who owes what
-      const usersInGroup = groups.length; // number of other users
-      const totalUsers = usersInGroup + 1; // including yourself
-      const perUserAmount = (parseFloat(amount) / totalUsers).toFixed(2);
-
-      const split = {};
-      groups.forEach((user) => {
-        split[user] = perUserAmount;
-      });
-
-      // you can skip displaying yourself if you want
-      split["You"] = perUserAmount;
-
-      const newExpense = {
-        amount,
-        note,
-        category,
-        group,
-        split, // <-- always include split
-        date: new Date().toISOString(),
-      };
-
-      const oldExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
-      oldExpenses.push(newExpense);
-
-      localStorage.setItem("expenses", JSON.stringify(oldExpenses));
-
-      alert("Expense saved!");
+    const newExpense = {
+      amount,
+      note,
+      category,
+      group,
+      split,
+      date: new Date().toISOString(),
     };
 
+    const oldExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    oldExpenses.push(newExpense);
+    localStorage.setItem("expenses", JSON.stringify(oldExpenses));
+
+    alert("Expense saved!");
+    setAmount(""); setNote(""); setCategory(""); setGroup("");
+    navigate("/expense-list");
+  };
 
   return (
     <div>
