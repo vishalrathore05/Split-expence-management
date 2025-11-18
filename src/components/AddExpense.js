@@ -1,115 +1,3 @@
-// import { useState, useEffect } from "react";
-
-// function AddExpense() {
-//     //store each data in this fields
-//   const [amount, setAmount] = useState("");
-//   const [note, setNote] = useState("");
-//   const [category, setCategory] = useState("");
-//   const [group, setGroup] = useState("");
-
-//   //here using the array to display the data on the dropdown 
-//   const [categories, setCategories] = useState([]);
-//   const [groups, setGroups] = useState([]);
-
-//   // Load categories and groups on first load
-//   useEffect(() => {
-//     const savedCategories = JSON.parse(localStorage.getItem("categories"));
-//     const savedGroups = JSON.parse(localStorage.getItem("groups")) || [];
-
-//     // If categories DON'T exist, create default ones
-//     if (!savedCategories) {
-//       const defaultCategories = ["Food", "Travel", "Shopping"];
-//       localStorage.setItem("categories", JSON.stringify(defaultCategories));
-//       setCategories(defaultCategories);
-//     } else {
-//       setCategories(savedCategories);
-//     }
-
-//     setGroups(savedGroups);
-//   }, []);
-
-//   // Save expense to localStorage
-//   const addExpense = () => {
-//     if (!amount || !category) {
-//       alert("Amount + Category required");
-//       return;
-//     }
-//     //packing all the values the user entered into one object.
-//     const newExpense = {
-//       amount, note, category, group, date: new Date().toISOString(),
-//     };
-
-//     //here are are going to find old expence 
-//     //and then push new expence into this 
-//     // so the expense list will look like this 
-//     // ...old exp 1
-//     // ...old exp 2
-//     // new exp
-//     const oldExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
-//     oldExpenses.push(newExpense);
-
-//     localStorage.setItem("expenses", JSON.stringify(oldExpenses));
-
-//     alert("Expense saved!");
-//     //reset input fields
-//     setAmount("");
-//     setNote("");
-//     setCategory("");
-//     setGroup("");
-//   };
-
-//   return (
-//     <div>
-//       <h3>Add Expense</h3>
-
-//       <label>Amount</label>
-//       <input
-//         className="form-control mb-2"
-//         value={amount}
-//         onChange={(e) => setAmount(e.target.value)}
-//       />
-
-//       <label>Note</label>
-//       <input
-//         className="form-control mb-2"
-//         value={note}
-//         onChange={(e) => setNote(e.target.value)}
-//       />
-
-//       <label>Category</label>
-//       <select
-//         className="form-control mb-2"
-//         value={category}
-//         onChange={(e) => setCategory(e.target.value)}
-//       >
-//         <option value="">Select Category</option>
-//         {categories.map((c, i) => (
-//           <option key={i}>{c}</option>
-//         ))}
-//       </select>
-
-//       <label>Group</label>
-//       <select
-//         className="form-control mb-3"
-//         value={group}
-//         onChange={(e) => setGroup(e.target.value)}
-//       >
-//         <option value="">Select Group</option>
-//         {groups.map((g, i) => (
-//           <option key={i}>{g}</option>
-//         ))}
-//       </select>
-
-//       <button className="btn btn-success" onClick={addExpense}>
-//         Save Expense
-//       </button>
-//     </div>
-//   );
-// }
-
-// export default AddExpense;
-
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -119,44 +7,68 @@ function AddExpense() {
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [category, setCategory] = useState("");
-  const [group, setGroup] = useState("");
+  
+  // New State: Determines if the expense is 'personal' or 'group'
+  const [expenseType, setExpenseType] = useState("personal"); 
+  
+  // Retained State: Stores the selected group name (only relevant if expenseType is 'group')
+  const [group, setGroup] = useState(""); 
 
   const [categories, setCategories] = useState([]);
   const [groups, setGroups] = useState([]);
 
   useEffect(() => {
-    const savedCategories = JSON.parse(localStorage.getItem("categories")) || ["Food", "Travel", "Shopping"];
+    // Load categories
+    const savedCategories = JSON.parse(localStorage.getItem("categories")) || ["Food", "Travel", "Shopping", "Bills", "Others"];
     setCategories(savedCategories);
 
+    // Load groups (FETCH CODE RESTORED)
     const savedGroups = JSON.parse(localStorage.getItem("groups")) || [];
     setGroups(savedGroups);
   }, []);
 
-  const addExpense = () => {
-    if (!amount || !category) return alert("Amount + Category required");
+  const addExpense = (e) => {
+    e.preventDefault(); 
+
+    // Basic validation
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+        return alert("Please enter a valid amount.");
+    }
+    if (!category) {
+        return alert("Please select a category.");
+    }
+    // Validation for Group Selection
+    if (expenseType === 'group' && !group) {
+        return alert("Please select a group for this expense.");
+    }
 
     let split = {};
-    if (group) {
-      const selectedGroup = groups.find((g) => g.name === group);
+    const expenseAmount = parseFloat(amount);
+    let selectedGroup = null;
+
+    if (expenseType === 'group' && group) {
+      selectedGroup = groups.find((g) => g.name === group);
+      
+      // Group Split Logic (RESTORED)
       if (selectedGroup) {
         const totalMembers = selectedGroup.members.length + 1; // including self
-        const share = (parseFloat(amount) / totalMembers).toFixed(2);
+        const share = (expenseAmount / totalMembers);
 
-        // Add self as "You"
-        split["You"] = parseFloat(share);
+        split["You"] = parseFloat(share.toFixed(2));
         selectedGroup.members.forEach((m) => {
-          split[m] = parseFloat(share);
+          split[m] = parseFloat(share.toFixed(2));
         });
       }
     } else {
-      split["You"] = parseFloat(amount); // personal expense
+      // Personal Expense Split
+      split["You"] = expenseAmount; 
     }
 
     const newExpense = {
-      amount,
+      amount: expenseAmount,
       note,
       category,
-      group,
+      group: expenseType === 'group' ? group : null, // Save group name or null
       split,
       date: new Date().toISOString(),
     };
@@ -165,34 +77,132 @@ function AddExpense() {
     oldExpenses.push(newExpense);
     localStorage.setItem("expenses", JSON.stringify(oldExpenses));
 
-    alert("Expense saved!");
-    setAmount(""); setNote(""); setCategory(""); setGroup("");
+    alert("Expense saved successfully!");
+    setAmount(""); setNote(""); setCategory(""); setExpenseType("personal"); setGroup("");
+    
     navigate("/expense-list");
   };
 
   return (
-    <div>
-      <h3>Add Expense</h3>
+    <div className="container py-5"> 
+      <div className="row justify-content-center"> 
+        <div className="col-lg-7 col-md-9">
 
-      <label>Amount</label>
-      <input className="form-control mb-2" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          {/* MODERN CARD STYLING */}
+          <div className="card border-0 shadow-lg rounded-4 overflow-hidden"> 
+            
+            <div className="card-header bg-white border-bottom-0 pt-4 pb-0">
+                <h2 className="text-center fw-bolder text-primary mb-1">Record Expense</h2>
+                <p className="text-center text-muted mb-4">Track every cent with precision.</p>
+            </div>
 
-      <label>Note</label>
-      <input className="form-control mb-2" value={note} onChange={(e) => setNote(e.target.value)} />
+            <div className="card-body p-md-5 p-4">
+              <form onSubmit={addExpense}> 
 
-      <label>Category</label>
-      <select className="form-control mb-2" value={category} onChange={(e) => setCategory(e.target.value)}>
-        <option value="">Select Category</option>
-        {categories.map((c, i) => <option key={i}>{c}</option>)}
-      </select>
+                {/* Amount Field - Focus on primary input */}
+                <div className="mb-4">
+                  <label htmlFor="amountInput" className="form-label fw-semibold text-muted">Amount ($)</label>
+                  <div className="input-group">
+                      <span className="input-group-text bg-light border-end-0 fs-5 fw-bold">$</span>
+                      <input 
+                        id="amountInput"
+                        type="number"
+                        step="0.01" 
+                        className="form-control form-control-lg border-start-0 border-top-0 border-end-0 border-bottom border-2 text-primary fw-bolder fs-4 p-2" 
+                        placeholder="0.00"
+                        value={amount} 
+                        onChange={(e) => setAmount(e.target.value)} 
+                        required 
+                      />
+                  </div>
+                </div>
 
-      <label>Group</label>
-      <select className="form-control mb-3" value={group} onChange={(e) => setGroup(e.target.value)}>
-        <option value="">Select Group</option>
-        {groups.map((g, i) => <option key={i}>{g.name}</option>)}
-      </select>
+                {/* Expense Type Field (New/Modified Primary Dropdown) */}
+                <div className="mb-4">
+                  <label htmlFor="expenseTypeSelect" className="form-label fw-semibold text-muted">Expense For</label>
+                  <select 
+                    id="expenseTypeSelect"
+                    className="form-select border-0 shadow-sm bg-light"
+                    value={expenseType} 
+                    onChange={(e) => {
+                        setExpenseType(e.target.value);
+                        setGroup(""); // Clear group selection if type changes
+                    }}
+                    required
+                  >
+                    <option value="personal">Personal Expense</option>
+                    <option value="group">Group Split</option>
+                  </select>
+                </div>
 
-      <button className="btn btn-success" onClick={addExpense}>💾 Save Expense</button>
+                {/* Group Selection Dropdown (CONDITIONAL RENDERING) */}
+                {expenseType === 'group' && (
+                    <div className="mb-4">
+                        <label htmlFor="groupSelect" className="form-label fw-semibold text-muted">Select Group</label>
+                        {groups.length === 0 ? (
+                            <div className="alert alert-warning small py-2">
+                                No groups found. Create one on the Groups page!
+                            </div>
+                        ) : (
+                            <select 
+                                id="groupSelect"
+                                className="form-select border-0 shadow-sm bg-light" 
+                                value={group} 
+                                onChange={(e) => setGroup(e.target.value)}
+                                required={expenseType === 'group'} // Make required only when type is 'group'
+                            >
+                                <option value="" disabled>-- Choose a Group --</option>
+                                {groups.map((g, i) => <option key={i} value={g.name}>{g.name} ({g.members.length + 1} members)</option>)}
+                            </select>
+                        )}
+                    </div>
+                )}
+                {/* End Conditional Group Selection */}
+
+
+                {/* Category Field */}
+                <div className="mb-4">
+                  <label htmlFor="categorySelect" className="form-label fw-semibold text-muted">Category</label>
+                  <select 
+                    id="categorySelect"
+                    className="form-select border-0 shadow-sm bg-light" 
+                    value={category} 
+                    onChange={(e) => setCategory(e.target.value)}
+                    required
+                  >
+                    <option value="" disabled>-- Select expense category --</option>
+                    {categories.map((c, i) => <option key={i} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                
+                {/* Note Field */}
+                <div className="mb-5"> 
+                  <label htmlFor="noteInput" className="form-label fw-semibold text-muted">Note / Description</label>
+                  <input 
+                    id="noteInput"
+                    type="text" 
+                    className="form-control border-0 shadow-sm bg-light" 
+                    placeholder="e.g., Dinner at the new Italian place"
+                    value={note} 
+                    onChange={(e) => setNote(e.target.value)} 
+                  />
+                </div>
+
+                {/* MODERN BUTTON */}
+                <div className="d-grid"> 
+                  <button 
+                    type="submit" 
+                    className="btn btn-lg btn-primary fw-bold rounded-pill shadow-sm"
+                  >
+                    💾 Save and Record
+                  </button>
+                </div>
+              </form>
+            </div>
+            
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
